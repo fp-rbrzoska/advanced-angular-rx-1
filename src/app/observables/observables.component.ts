@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { Observable, Subscription, of, fromEvent } from 'rxjs';
 
-import { tap, map, filter, take } from 'rxjs/operators';
+import { tap, map, filter, take, debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'fp-observables',
@@ -10,7 +10,9 @@ import { tap, map, filter, take } from 'rxjs/operators';
 })
 export class ObservablesComponent implements OnInit, AfterViewInit {
 
-@ViewChild('btn') btn: ElementRef;
+  @ViewChild('btn') btn: ElementRef;
+  @ViewChild('myInput') input: ElementRef;
+  filteredInputData$: Observable<any>;
 
   subscription: Subscription;
   obs$ = new Observable(obs => {
@@ -33,6 +35,13 @@ export class ObservablesComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
+
+    this.filteredInputData$ = fromEvent(this.input.nativeElement, 'input').pipe(
+      map((v: any) => v.target.value),
+      filter(v => !v.includes('dupa')),
+      debounceTime(400)
+    )
+
     let evObs$ = fromEvent(this.btn.nativeElement, 'click')
     .pipe(
       take(5),
