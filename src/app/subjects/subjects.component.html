@@ -1,1 +1,4 @@
 <p>subjects works!</p>
+<div *ngIf="formData$ | async as formData">
+  {{formData | json }}
+</div>

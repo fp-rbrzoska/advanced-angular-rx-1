@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Subject, BehaviorSubject, ReplaySubject, AsyncSubject } from 'rxjs';
+import { Subject, BehaviorSubject, ReplaySubject, AsyncSubject, of, Observable, forkJoin, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'fp-subjects',
@@ -8,7 +9,8 @@ import { Subject, BehaviorSubject, ReplaySubject, AsyncSubject } from 'rxjs';
 })
 export class SubjectsComponent implements OnInit {
 
-
+  formData$: Observable<any>;
+  showError = false;
   // wykorzystanie np jako Event Bus
   private testSubj = new Subject();
   test$ = this.testSubj.asObservable();
@@ -26,10 +28,24 @@ export class SubjectsComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    this.loadData();
+    this.bSubj.pipe(
+      catchError(e => of(e))
+    )
 
-    // this.bObs$.subscribe(v => console.log(v))
+    this.bObs$.subscribe(v => console.log(v))
 
-    // this.setNewBVal('b2');
+    this.setNewBVal('b2');
+
+    // setTimeout(() => {
+    //   this.bSubj.error('cos je..ło');
+
+    //   setTimeout(() => {
+    //     this.setNewBVal('znowu ok');
+    //   }, 2000)
+    // }, 5000)
+
+
     // console.log(this.bLastValue);
 
     // this.testSubj.next(1);
@@ -52,10 +68,40 @@ export class SubjectsComponent implements OnInit {
     // this.aSubj.next('a3')
     // this.aSubj.complete();
 
+
+
+  }
+
+  loadData() {
+    this.formData$ = forkJoin([this.fetchData1(), this.fetchData2()]).pipe(catchError(() => {
+      this.showError = true;
+      return throwError('error')
+     }
+      ))
+  }
+
+  fetchData1() {
+    return new Observable(obs => {
+      setTimeout(() => {
+        obs.next('a');
+        obs.complete();
+      }, 1500)
+    })
+  }
+
+  fetchData2() {
+    return new Observable(obs => {
+      setTimeout(() => {
+        obs.error('b');
+        obs.complete();
+      }, 3500)
+    })
   }
 
   setNewBVal(v) {
     this.bSubj.next(v);
   }
+
+
 
 }
