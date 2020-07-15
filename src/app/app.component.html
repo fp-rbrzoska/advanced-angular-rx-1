@@ -1,6 +1,11 @@
-<a [routerLink]="['/']" >Observables</a>
+<a [routerLink]="['/']" >Home</a>
 <a [routerLink]="['/subjects']" >Subjects</a>
+<a [routerLink]="['/observables']" >Observables</a>
 
+<div>User: {{ (username$ | async)}}</div>
+<button (click)="login()">Login</button>
+<button (click)="logout()">Logout</button>
+<div *ngIf="loading$ | async" style="background: white; width: 100%; height: 100%; opacity:0.5; position: fixed; z-index: 1000">Loading ...</div>
 <div>
   <router-outlet></router-outlet>
 </div>
