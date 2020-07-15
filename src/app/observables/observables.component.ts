@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { Observable, Subscription, of, fromEvent } from 'rxjs';
 
+import { tap, map, filter, take } from 'rxjs/operators';
+
 @Component({
   selector: 'fp-observables',
   templateUrl: './observables.component.html',
@@ -23,15 +25,22 @@ export class ObservablesComponent implements OnInit, AfterViewInit {
   constructor() { }
 
   ngOnInit(): void {
-    this.obs2$.subscribe(val => console.log(val), err => console.log(err), () => console.log('completed'))
+    this.obs2$
+    .pipe(
+      filter(v => v > 2)
+    )
+    .subscribe(val => console.log(val), err => console.log(err), () => console.log('completed'))
   }
 
   ngAfterViewInit() {
-    let evObs$ = fromEvent(this.btn.nativeElement, 'click');
-    setTimeout(() => evObs$ .subscribe(v => console.log(v)), 5000)
-
-
-
+    let evObs$ = fromEvent(this.btn.nativeElement, 'click')
+    .pipe(
+      take(5),
+      tap(v => console.log('tap: ' + v)),
+      map((e: any) => e.target),
+      tap(v => console.log('tap: ' + v)),
+    )
+    .subscribe(v => console.log(v), err => console.error('error', err), ()=> console.log('completed'));
   }
 
 }
